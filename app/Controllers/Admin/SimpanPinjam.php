@@ -1,0 +1,725 @@
+<?php
+
+namespace App\Controllers\Admin;
+
+use App\Controllers\BaseController;
+
+use App\Models\AnggotaModel;
+use App\Models\SimpananModel;
+use App\Models\PinjamanModel;
+use App\Models\ProdukWaserdaModel;
+use App\Models\PenarikanSimpananModel;
+use App\Models\SetoranSimpananModel;
+use App\Models\PengaturanModel;
+use App\Models\AdminUsersModel;
+use App\Models\RiwayatTransaksiModel;
+use App\Models\AkunCoaModel;
+use App\Models\JurnalTransaksiModel;
+use App\Models\SupplierModel;
+use App\Models\PurchaseOrderModel;
+use App\Models\AuditTrailModel;
+
+class SimpanPinjam extends BaseController
+{
+    use \App\Traits\DataTablesTrait;
+
+    public function index()
+    {
+
+        $simpananModel = new \App\Models\SimpananModel();
+        $pinjamanModel = new \App\Models\PinjamanModel();
+        $penarikanModel = new \App\Models\PenarikanSimpananModel();
+        $setoranModel = new \App\Models\SetoranSimpananModel();
+        
+        $data = [
+            'simpanan' => $simpananModel->findAll(),
+            'pinjaman' => $pinjamanModel->findAll(),
+            'penarikanSimpanan' => $penarikanModel->findAll(),
+            'setoranSimpanan' => $setoranModel->findAll(),
+            'tagihanMacet' => [], // Fixed from 0 to array
+            'pinjamanAktif' => 0, // Placeholder if needed
+        ];
+        return view('admin/simpan_pinjam', $data);
+
+    }
+    protected $anggotaModel;
+    protected $simpananModel;
+    protected $pinjamanModel;
+    protected $waserdaModel;
+    protected $transaksiModel;
+    protected $pengaturanModel;
+    protected $adminUsersModel;
+    protected $coaModel;
+    protected $jurnalModel;
+    protected $supplierModel;
+    protected $poModel;
+
+    public function __construct()
+    {
+        $this->anggotaModel = new AnggotaModel();
+        $this->simpananModel = new SimpananModel();
+        $this->pinjamanModel = new \App\Models\PinjamanModel();
+        $this->waserdaModel = new ProdukWaserdaModel();
+        $this->transaksiModel = new RiwayatTransaksiModel();
+        $this->pengaturanModel = new PengaturanModel();
+        $this->adminUsersModel = new AdminUsersModel();
+        $this->coaModel = new AkunCoaModel();
+        $this->jurnalModel = new JurnalTransaksiModel();
+        $this->supplierModel = new SupplierModel();
+        $this->poModel = new PurchaseOrderModel();
+    }
+
+    public function verifikasiPinjaman()
+    {
+        $id = $this->request->getPost('id');
+        $pinjamanModel = new PinjamanModel();
+        $pinjamanModel->update($id, ['status_pengajuan' => 'Verifikasi']);
+        
+        $auditModel = new \App\Models\AuditTrailModel();
+        $auditModel->logAction('VERIFIKASI_PINJAMAN', 'Admin memverifikasi pinjaman ID ' . $id);
+        
+        return redirect()->back()->with('message', 'Pinjaman berhasil diverifikasi');
+    }
+
+    public function approvePinjaman($id)
+    {
+        $pinjamanModel = new PinjamanModel();
+        
+        $pinjaman = $pinjamanModel->find($id);
+        if ($pinjaman && $pinjaman['status_pengajuan'] === 'Verifikasi') {
+            $pinjamanModel->update($id, ['status_pengajuan' => 'Disetujui']);
+            
+            $auditModel = new \App\Models\AuditTrailModel();
+            $auditModel->logAction('APPROVE_PINJAMAN', 'Admin menyetujui pinjaman senilai Rp ' . number_format($pinjaman['nominal_pengajuan'],0,',','.') . ' untuk Anggota ID ' . $pinjaman['anggota_id']);
+
+            // [NOTIFICATION]
+            $notifModel = new \App\Models\NotificationModel();
+            $notifModel->insert([
+                'user_type' => 'Anggota',
+                'user_id' => $pinjaman['anggota_id'],
+                'judul' => 'Pinjaman Disetujui',
+                'pesan' => 'Pengajuan pinjaman Anda senilai Rp ' . number_format($pinjaman['nominal_pengajuan'],0,',','.') . ' telah disetujui.',
+                'jenis' => 'info',
+                'is_read' => 0
+            ]);
+
+            return redirect()->back()->with('message', 'Pinjaman berhasil disetujui');
+        }
+        return redirect()->back()->with('error', 'Status tidak valid.');
+    }
+
+    public function cairkanPinjaman($id)
+    {
+        $pinjamanModel = new PinjamanModel();
+        $angsuranModel = new \App\Models\PinjamanAngsuranModel();
+        $riwayatModel = new \App\Models\RiwayatTransaksiModel();
+        
+        $pinjaman = $pinjamanModel->find($id);
+        if ($pinjaman && $pinjaman['status_pengajuan'] === 'Disetujui') {
+            $db = \Config\Database::connect();
+            $db->transStart();
+            
+            $pinjamanModel->update($id, ['status_pengajuan' => 'Berjalan']); // Langsung berjalan setelah dicairkan
+            
+            $pokok = $pinjaman['nominal_pengajuan'] / $pinjaman['tenor_bulan'];
+            $pengaturanModel = new \App\Models\PengaturanModel();
+            $bungaPersen = $pengaturanModel->where('kunci', 'jasa_bunga_pinjaman')->first()['nilai'] ?? 1.0;
+            $bunga = $pinjaman['nominal_pengajuan'] * ($bungaPersen / 100);
+            
+            $angsuranDataLama = [];
+            for ($i = 1; $i <= $pinjaman['tenor_bulan']; $i++) {
+                $angsuranDataLama[] = [
+                    'pinjaman_id' => $id,
+                    'bulan_ke' => $i,
+                    'jatuh_tempo' => date('Y-m-d', strtotime("+$i months")),
+                    'pokok' => $pokok,
+                    'jasa' => $bunga,
+                    'status' => 'Belum Lunas'
+                ];
+            }
+            $angsuranModel->insertBatch($angsuranDataLama);
+
+            $riwayatModel->insert([
+                'anggota_id' => $pinjaman['anggota_id'],
+                'kategori' => 'Pinjaman',
+                'jenis_transaksi' => 'Keluar',
+                'nominal' => $pinjaman['nominal_pengajuan'],
+                'keterangan' => 'Pencairan Pinjaman (Tenor ' . $pinjaman['tenor_bulan'] . ' bln)',
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+
+            // [AUTO-JURNAL] Pencairan Pinjaman
+            // Debit: Piutang Pinjaman Anggota (1200)
+            // Kredit: Kas Koperasi (1100)
+            $coaModel = new \App\Models\AkunCoaModel();
+            $jurnalModel = new \App\Models\JurnalTransaksiModel();
+            
+            $akunPiutang = $coaModel->where('kode_akun', '1200')->first();
+            $akunKas = $coaModel->where('kode_akun', '1100')->first();
+            $noBukti = 'PJM-' . date('YmdHis') . '-' . $id;
+            
+            if ($akunPiutang && $akunKas) {
+                $jurnalModel->insertBatch([
+                    ['nomor_bukti' => $noBukti, 'tanggal' => date('Y-m-d'), 'akun_id' => $akunPiutang['id'], 'posisi' => 'Debit', 'nominal' => $pinjaman['nominal_pengajuan'], 'keterangan' => 'Pencairan Pinjaman Anggota ID: ' . $pinjaman['anggota_id']],
+                    ['nomor_bukti' => $noBukti, 'tanggal' => date('Y-m-d'), 'akun_id' => $akunKas['id'], 'posisi' => 'Kredit', 'nominal' => $pinjaman['nominal_pengajuan'], 'keterangan' => 'Pencairan Pinjaman Anggota ID: ' . $pinjaman['anggota_id']]
+                ]);
+            }
+
+            // [AUDIT TRAIL]
+            $auditModel = new \App\Models\AuditTrailModel();
+            $auditModel->logAction('CAIRKAN_PINJAMAN', 'Admin mencairkan pinjaman senilai Rp ' . number_format($pinjaman['nominal_pengajuan'],0,',','.') . ' untuk Anggota ID ' . $pinjaman['anggota_id']);
+
+            // [NOTIFICATION]
+            $notifModel = new \App\Models\NotificationModel();
+            $notifModel->insert([
+                'user_type' => 'Anggota',
+                'user_id' => $pinjaman['anggota_id'],
+                'judul' => 'Pinjaman Cair',
+                'pesan' => 'Dana pinjaman Anda senilai Rp ' . number_format($pinjaman['nominal_pengajuan'],0,',','.') . ' telah berhasil dicairkan.',
+                'jenis' => 'success',
+                'is_read' => 0
+            ]);
+
+            $db->transComplete();
+            if ($db->transStatus() === false) {
+                return redirect()->back()->with('error', 'Transaksi database gagal.');
+            }
+
+            return redirect()->back()->with('message', 'Pinjaman berhasil dicairkan');
+        }
+        return redirect()->back()->with('error', 'Status tidak valid.');
+    }
+
+    public function getRincianCicilan($id)
+    {
+        $jadwalModel = new \App\Models\JadwalAngsuranModel();
+        $data = $jadwalModel->where('pinjaman_id', $id)->orderBy('bulan_ke', 'ASC')->findAll();
+        
+        // Coba model lama jika data di model baru kosong (untuk data dummy yang ada sebelumnya)
+        if(empty($data)) {
+            $angsuranModel = new \App\Models\PinjamanAngsuranModel();
+            $dataLama = $angsuranModel->where('pinjaman_id', $id)->orderBy('bulan_ke', 'ASC')->findAll();
+            $data = array_map(function($row) {
+                return [
+                    'bulan_ke' => $row['bulan_ke'],
+                    'jatuh_tempo' => $row['jatuh_tempo'],
+                    'pokok' => $row['pokok'],
+                    'bunga' => $row['jasa'],
+                    'status_bayar' => $row['status'] === 'Belum Lunas' ? 'Belum Bayar' : 'Lunas'
+                ];
+            }, $dataLama);
+        }
+        
+        return $this->response->setJSON(['status' => 'success', 'data' => $data]);
+    }
+    
+    public function detailPinjaman($id)
+    {
+        $pinjamanModel = new \App\Models\PinjamanModel();
+        $pinjaman = $pinjamanModel->find($id);
+        if (!$pinjaman) {
+            return "Pinjaman tidak ditemukan.";
+        }
+        
+        $db = \Config\Database::connect();
+        $anggota = $db->table('anggota')->where('id', $pinjaman['anggota_id'])->get()->getRowArray();
+        
+        // Kalkulasi DSR
+        $gaji = $pinjaman['penghasilan_bulanan'] > 0 ? $pinjaman['penghasilan_bulanan'] : 1; // hindari division by zero
+        $angsuran_pokok = $pinjaman['nominal_pengajuan'] / $pinjaman['tenor_bulan'];
+        $pengaturanModel = new \App\Models\PengaturanModel();
+        $bungaPersen = $pengaturanModel->where('kunci', 'jasa_bunga_pinjaman')->first()['nilai'] ?? 1.0;
+        $angsuran_jasa = $pinjaman['nominal_pengajuan'] * ($bungaPersen / 100);
+        $total_angsuran = $angsuran_pokok + $angsuran_jasa;
+        $total_beban = $total_angsuran + $pinjaman['cicilan_lainnya'];
+        
+        $dsr = ($total_beban / $gaji) * 100;
+        
+        if ($dsr <= 40) {
+            $dsr_status = '<span style="color: #16a34a; font-weight: bold;">LAYAK / AMAN (Risiko Rendah)</span>';
+            $bg_bar = 'bg-success';
+        } elseif ($dsr <= 60) {
+            $dsr_status = '<span style="color: #ca8a04; font-weight: bold;">RISIKO SEDANG</span>';
+            $bg_bar = 'bg-warning';
+        } else {
+            $dsr_status = '<span style="color: #dc2626; font-weight: bold;">TIDAK DISARANKAN (Risiko Tinggi)</span>';
+            $bg_bar = 'bg-danger';
+        }
+        $dsr_percent = round($dsr, 1);
+        if($dsr_percent > 100) $dsr_percent = 100; // max width
+
+        $html = '<div style="padding: 10px; font-family: sans-serif;">';
+        if ($anggota) {
+            $html .= '<p><strong>Pemohon:</strong> ' . esc($anggota['nama_lengkap']) . ' (' . esc($anggota['nip']) . ')</p>';
+        }
+        $html .= '<p><strong>Nominal Diajukan:</strong> Rp ' . number_format($pinjaman['nominal_pengajuan'], 0, ',', '.') . '</p>';
+        $html .= '<p><strong>Tenor:</strong> ' . $pinjaman['tenor_bulan'] . ' bulan</p>';
+        $html .= '<p><strong>Status:</strong> ' . esc($pinjaman['status_pengajuan']) . '</p>';
+        
+        $html .= '<hr style="border: 1px dashed #cbd5e1; margin: 15px 0;">';
+        $html .= '<h4 style="color: #0f172a;"><i class="fas fa-chart-pie"></i> Hasil Analisis Kredit (DSR)</h4>';
+        $html .= '<table style="width: 100%; margin-bottom: 15px; font-size: 0.9rem;">';
+        $html .= '<tr><td>Penghasilan Bulanan</td><td style="text-align:right;">Rp '.number_format($pinjaman['penghasilan_bulanan'], 0, ',', '.').'</td></tr>';
+        $html .= '<tr><td>Angsuran Pinjaman Ini</td><td style="text-align:right;">Rp '.number_format($total_angsuran, 0, ',', '.').'</td></tr>';
+        $html .= '<tr><td>Cicilan Lainnya</td><td style="text-align:right;">Rp '.number_format($pinjaman['cicilan_lainnya'], 0, ',', '.').'</td></tr>';
+        $html .= '<tr style="font-weight:bold; border-top: 1px solid #ccc;"><td style="padding-top:5px;">Total Beban Angsuran</td><td style="text-align:right; padding-top:5px;">Rp '.number_format($total_beban, 0, ',', '.').'</td></tr>';
+        $html .= '</table>';
+        
+        $html .= '<div style="margin-bottom: 5px;">Rasio DSR: <strong>'.round($dsr, 1).'%</strong> - ' . $dsr_status . '</div>';
+        $html .= '<div style="background: #e2e8f0; border-radius: 10px; overflow: hidden; height: 12px; margin-bottom: 10px;">';
+        $html .= '<div class="'.$bg_bar.'" style="width: '.$dsr_percent.'%; height: 100%;"></div>';
+        $html .= '</div>';
+        if ($dsr > 40) {
+            $html .= '<div style="background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 10px; border-radius: 5px; font-size: 0.85rem;"><i class="fas fa-exclamation-triangle"></i> Peringatan: Beban cicilan melebihi batas aman 40% dari penghasilan. Mohon pertimbangkan ulang atau hubungi anggota.</div>';
+        }
+        $html .= '</div>';
+        
+        return $html;
+    }
+
+    public function rejectPinjaman($id)
+    {
+        $pinjamanModel = new PinjamanModel();
+        $pinjamanModel->update($id, ['status_pengajuan' => 'Ditolak']);
+        return redirect()->back()->with('message', 'Pinjaman berhasil ditolak');
+    }
+
+    public function approveAngsuran($id)
+    {
+        $angsuranModel = new \App\Models\PinjamanAngsuranModel();
+        $angsuran = $angsuranModel->find($id);
+
+        if ($angsuran && $angsuran['status'] !== 'Lunas') {
+            $db = \Config\Database::connect();
+            $db->transStart();
+
+            $angsuranModel->update($id, [
+                'status' => 'Lunas',
+                'tanggal_bayar' => date('Y-m-d H:i:s')
+            ]);
+
+            // [AUTO-JURNAL] Angsuran Pinjaman
+            // Debit: Kas (1100) -> pokok + jasa
+            // Kredit: Piutang (1200) -> pokok
+            // Kredit: Pendapatan Jasa (4100) -> jasa
+            $coaModel = new \App\Models\AkunCoaModel();
+            $jurnalModel = new \App\Models\JurnalTransaksiModel();
+
+            $akunKas = $coaModel->where('kode_akun', '1100')->first();
+            $akunPiutang = $coaModel->where('kode_akun', '1200')->first();
+            $akunPendapatanJasa = $coaModel->where('kode_akun', '4100')->first();
+            $noBukti = 'ANG-' . date('YmdHis') . '-' . $id;
+
+            if ($akunKas && $akunPiutang && $akunPendapatanJasa) {
+                $jurnalModel->insertBatch([
+                    ['nomor_bukti' => $noBukti, 'tanggal' => date('Y-m-d'), 'akun_id' => $akunKas['id'], 'posisi' => 'Debit', 'nominal' => $angsuran['pokok'] + $angsuran['jasa'], 'keterangan' => 'Penerimaan Angsuran Ke-'.$angsuran['bulan_ke'].' (Pinjaman ID: '.$angsuran['pinjaman_id'].')'],
+                    ['nomor_bukti' => $noBukti, 'tanggal' => date('Y-m-d'), 'akun_id' => $akunPiutang['id'], 'posisi' => 'Kredit', 'nominal' => $angsuran['pokok'], 'keterangan' => 'Pelunasan Pokok Angsuran Ke-'.$angsuran['bulan_ke'].' (Pinjaman ID: '.$angsuran['pinjaman_id'].')'],
+                    ['nomor_bukti' => $noBukti, 'tanggal' => date('Y-m-d'), 'akun_id' => $akunPendapatanJasa['id'], 'posisi' => 'Kredit', 'nominal' => $angsuran['jasa'], 'keterangan' => 'Pendapatan Jasa Angsuran Ke-'.$angsuran['bulan_ke'].' (Pinjaman ID: '.$angsuran['pinjaman_id'].')']
+                ]);
+            }
+
+            // [AUDIT TRAIL]
+            $auditModel = new \App\Models\AuditTrailModel();
+            $auditModel->logAction('APPROVE_ANGSURAN', 'Admin memproses pelunasan angsuran ke-'.$angsuran['bulan_ke'].' untuk Pinjaman ID ' . $angsuran['pinjaman_id']);
+
+            $db->transComplete();
+            if ($db->transStatus() === false) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Transaksi database gagal.']);
+            }
+
+            return $this->response->setJSON(['status' => 'success']);
+        }
+        return $this->response->setJSON(['status' => 'error']);
+    }
+
+    public function approveSetoran($id)
+    {
+        $setoranModel = new SetoranSimpananModel();
+        $simpananModel = new SimpananModel();
+        $riwayatModel = new \App\Models\RiwayatTransaksiModel();
+
+        $setoran = $setoranModel->find($id);
+        if ($setoran && $setoran['status_pengajuan'] === 'Pending') {
+            $db = \Config\Database::connect();
+            $db->transStart();
+
+            $setoranModel->update($id, ['status_pengajuan' => 'Disetujui']);
+
+            // Tambah Saldo
+            $sukarela = $simpananModel->where('anggota_id', $setoran['anggota_id'])->where('jenis_simpanan', 'Sukarela')->first();
+            if ($sukarela) {
+                $simpananModel->update($sukarela['id'], ['saldo' => $sukarela['saldo'] + $setoran['nominal']]);
+            }
+
+            $riwayatModel->insert([
+                'anggota_id' => $setoran['anggota_id'],
+                'kategori' => 'Simpanan',
+                'jenis_transaksi' => 'Masuk',
+                'nominal' => $setoran['nominal'],
+                'keterangan' => 'Setoran Simpanan Sukarela',
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+
+            // [AUTO-JURNAL] Setoran Simpanan
+            // Debit: Kas Koperasi (1100), Kredit: Simpanan Sukarela (2200)
+            $coaModel = new \App\Models\AkunCoaModel();
+            $jurnalModel = new \App\Models\JurnalTransaksiModel();
+            $akunKas = $coaModel->where('kode_akun', '1100')->first();
+            $akunSimpanan = $coaModel->where('kode_akun', '2200')->first();
+            $noBukti = 'SIM-' . date('YmdHis');
+
+            if ($akunKas && $akunSimpanan) {
+                $jurnalModel->insertBatch([
+                    ['nomor_bukti' => $noBukti, 'tanggal' => date('Y-m-d'), 'akun_id' => $akunKas['id'], 'posisi' => 'Debit', 'nominal' => $setoran['nominal'], 'keterangan' => 'Setoran Simpanan Anggota ID ' . $setoran['anggota_id']],
+                    ['nomor_bukti' => $noBukti, 'tanggal' => date('Y-m-d'), 'akun_id' => $akunSimpanan['id'], 'posisi' => 'Kredit', 'nominal' => $setoran['nominal'], 'keterangan' => 'Setoran Simpanan Anggota ID ' . $setoran['anggota_id']]
+                ]);
+            }
+
+            // [AUDIT TRAIL]
+            $auditModel = new \App\Models\AuditTrailModel();
+            $auditModel->logAction('APPROVE_SETORAN', 'Admin menyetujui setoran simpanan senilai Rp ' . number_format($setoran['nominal'],0,',','.') . ' oleh Anggota ID ' . $setoran['anggota_id']);
+
+            // [NOTIFICATION]
+            $notifModel = new \App\Models\NotificationModel();
+            $notifModel->insert([
+                'user_type' => 'Anggota',
+                'user_id' => $setoran['anggota_id'],
+                'judul' => 'Setoran Simpanan Sukses',
+                'pesan' => 'Setoran simpanan sukarela Anda senilai Rp ' . number_format($setoran['nominal'],0,',','.') . ' berhasil divalidasi.',
+                'jenis' => 'success',
+                'is_read' => 0
+            ]);
+
+            $db->transComplete();
+            if ($db->transStatus() === false) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Transaksi database gagal.']);
+            }
+
+            return $this->response->setJSON(['status' => 'success']);
+        }
+        return $this->response->setJSON(['status' => 'error']);
+    }
+
+    public function approvePenarikan($id)
+    {
+        $penarikanModel = new PenarikanSimpananModel();
+        $simpananModel = new SimpananModel();
+        $riwayatModel = new \App\Models\RiwayatTransaksiModel();
+
+        $tarik = $penarikanModel->find($id);
+        if ($tarik && $tarik['status_pengajuan'] === 'Pending') {
+            $db = \Config\Database::connect();
+            $db->transStart();
+
+            // Cek Saldo DULU sebelum update status
+            $sukarela = $simpananModel->where('anggota_id', $tarik['anggota_id'])->where('jenis_simpanan', 'Sukarela')->first();
+            if (!$sukarela) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Simpanan Sukarela tidak ditemukan.']);
+            }
+            if ($sukarela['saldo'] < $tarik['nominal']) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Saldo Sukarela tidak mencukupi untuk penarikan ini.']);
+            }
+
+            // Baru update status setelah lolos validasi
+            $penarikanModel->update($id, ['status_pengajuan' => 'Disetujui']);
+
+            // Kurangi Saldo
+            $simpananModel->update($sukarela['id'], ['saldo' => $sukarela['saldo'] - $tarik['nominal']]);
+
+            $riwayatModel->insert([
+                'anggota_id' => $tarik['anggota_id'],
+                'kategori' => 'Simpanan',
+                'jenis_transaksi' => 'Keluar',
+                'nominal' => $tarik['nominal'],
+                'keterangan' => 'Penarikan Simpanan Sukarela',
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+
+            // [AUTO-JURNAL] Penarikan Simpanan
+            // Debit: Simpanan Sukarela (2200), Kredit: Kas Koperasi (1100)
+            $coaModel = new \App\Models\AkunCoaModel();
+            $jurnalModel = new \App\Models\JurnalTransaksiModel();
+            $akunSimpanan = $coaModel->where('kode_akun', '2200')->first();
+            $akunKas = $coaModel->where('kode_akun', '1100')->first();
+            $noBukti = 'TAR-' . date('YmdHis');
+
+            if ($akunKas && $akunSimpanan) {
+                $jurnalModel->insertBatch([
+                    ['nomor_bukti' => $noBukti, 'tanggal' => date('Y-m-d'), 'akun_id' => $akunSimpanan['id'], 'posisi' => 'Debit', 'nominal' => $tarik['nominal'], 'keterangan' => 'Penarikan Simpanan Anggota ID ' . $tarik['anggota_id']],
+                    ['nomor_bukti' => $noBukti, 'tanggal' => date('Y-m-d'), 'akun_id' => $akunKas['id'], 'posisi' => 'Kredit', 'nominal' => $tarik['nominal'], 'keterangan' => 'Penarikan Simpanan Anggota ID ' . $tarik['anggota_id']]
+                ]);
+            }
+
+            // [AUDIT TRAIL]
+            $auditModel = new \App\Models\AuditTrailModel();
+            $auditModel->logAction('APPROVE_PENARIKAN', 'Admin menyetujui penarikan senilai Rp ' . number_format($tarik['nominal'],0,',','.') . ' oleh Anggota ID ' . $tarik['anggota_id']);
+
+            // [NOTIFICATION]
+            $notifModel = new \App\Models\NotificationModel();
+            $notifModel->insert([
+                'user_type' => 'Anggota',
+                'user_id' => $tarik['anggota_id'],
+                'judul' => 'Penarikan Simpanan Sukses',
+                'pesan' => 'Penarikan simpanan sukarela Anda senilai Rp ' . number_format($tarik['nominal'],0,',','.') . ' telah disetujui.',
+                'jenis' => 'success',
+                'is_read' => 0
+            ]);
+
+            $db->transComplete();
+            if ($db->transStatus() === false) {
+                return $this->response->setJSON(['status' => 'error', 'message' => 'Transaksi database gagal.']);
+            }
+
+            return $this->response->setJSON(['status' => 'success']);
+        }
+        return $this->response->setJSON(['status' => 'error']);
+    }
+
+    // --- Master Anggota CRUD ---
+    
+    public function koreksiSimpanan()
+    {
+        $simpananModel = new SimpananModel();
+        $riwayatModel = new \App\Models\RiwayatTransaksiModel();
+        
+        $anggota_id = $this->request->getPost('anggota_id');
+        $jenis = $this->request->getPost('jenis_simpanan');
+        $nominal = $this->request->getPost('nominal');
+        $keterangan = $this->request->getPost('keterangan');
+        $tipe = $this->request->getPost('tipe'); // 'Tambah' or 'Kurang'
+        
+        $simpanan = $simpananModel->where('anggota_id', $anggota_id)->where('jenis_simpanan', $jenis)->first();
+        if ($simpanan) {
+            $db = \Config\Database::connect();
+            $db->transStart();
+            
+            $saldo_baru = $tipe == 'Tambah' ? $simpanan['saldo'] + $nominal : $simpanan['saldo'] - $nominal;
+            $simpananModel->update($simpanan['id'], ['saldo' => $saldo_baru]);
+            
+            $riwayatModel->insert([
+                'anggota_id' => $anggota_id,
+                'kategori' => 'Simpanan',
+                'jenis_transaksi' => $tipe == 'Tambah' ? 'Masuk' : 'Keluar',
+                'nominal' => $nominal,
+                'keterangan' => 'Koreksi Simpanan ' . $jenis . ': ' . $keterangan,
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+            
+            $db->transComplete();
+            return redirect()->back()->with('message', 'Koreksi simpanan berhasil.');
+        }
+        return redirect()->back()->with('error', 'Data simpanan tidak ditemukan.');
+    }
+    
+    public function transferSimpanan()
+    {
+        $simpananModel = new SimpananModel();
+        $riwayatModel = new \App\Models\RiwayatTransaksiModel();
+        
+        $anggota_id = $this->request->getPost('anggota_id');
+        $dari = $this->request->getPost('dari_simpanan');
+        $ke = $this->request->getPost('ke_simpanan');
+        $nominal = $this->request->getPost('nominal');
+        
+        $simpananDari = $simpananModel->where('anggota_id', $anggota_id)->where('jenis_simpanan', $dari)->first();
+        $simpananKe = $simpananModel->where('anggota_id', $anggota_id)->where('jenis_simpanan', $ke)->first();
+        
+        if ($simpananDari && $simpananKe && $simpananDari['saldo'] >= $nominal) {
+            $db = \Config\Database::connect();
+            $db->transStart();
+            
+            $simpananModel->update($simpananDari['id'], ['saldo' => $simpananDari['saldo'] - $nominal]);
+            $simpananModel->update($simpananKe['id'], ['saldo' => $simpananKe['saldo'] + $nominal]);
+            
+            $riwayatModel->insert([
+                'anggota_id' => $anggota_id,
+                'kategori' => 'Simpanan',
+                'jenis_transaksi' => 'Keluar',
+                'nominal' => $nominal,
+                'keterangan' => 'Transfer keluar ke ' . $ke,
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+            $riwayatModel->insert([
+                'anggota_id' => $anggota_id,
+                'kategori' => 'Simpanan',
+                'jenis_transaksi' => 'Masuk',
+                'nominal' => $nominal,
+                'keterangan' => 'Transfer masuk dari ' . $dari,
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+            
+            $db->transComplete();
+            return redirect()->back()->with('message', 'Transfer simpanan berhasil.');
+        }
+        return redirect()->back()->with('error', 'Saldo tidak mencukupi atau simpanan tidak valid.');
+    }
+
+    public function ajaxSimpanan()
+    {
+        $model = new \App\Models\SimpananModel();
+        $result = $this->processDataTables($model, ['anggota.nama_lengkap', 'anggota.nip', 'simpanan.jenis_simpanan'], null, [
+            ['table' => 'anggota', 'cond' => 'anggota.id = simpanan.anggota_id']
+        ]);
+        
+        $response = [
+            'draw' => $result['draw'],
+            'recordsTotal' => $result['recordsTotal'],
+            'recordsFiltered' => $result['recordsFiltered'],
+            'data' => []
+        ];
+        
+        foreach ($result['data'] as $i => $row) {
+            $response['data'][] = [
+                $result['offset'] + $i + 1,
+                date('d/m/Y', strtotime($row['created_at'])),
+                $row['nip'],
+                $row['nama_lengkap'],
+                $row['jenis_simpanan'],
+                'Rp ' . number_format($row['saldo'], 0, ',', '.')
+            ];
+        }
+        return $this->response->setJSON($response);
+    }
+
+    public function ajaxPenarikan()
+    {
+        $model = new \App\Models\PenarikanSimpananModel();
+        $result = $this->processDataTables($model, ['anggota.nama_lengkap', 'anggota.nip'], null, [
+            ['table' => 'anggota', 'cond' => 'anggota.id = penarikan_simpanan.anggota_id']
+        ]);
+        
+        $response = [
+            'draw' => $result['draw'],
+            'recordsTotal' => $result['recordsTotal'],
+            'recordsFiltered' => $result['recordsFiltered'],
+            'data' => []
+        ];
+        
+        foreach ($result['data'] as $i => $row) {
+            $statusBadge = '';
+            if($row['status_pengajuan'] == 'Disetujui') $statusBadge = '<span class="status-badge status-approved">Disetujui</span>';
+            else if($row['status_pengajuan'] == 'Ditolak') $statusBadge = '<span class="status-badge status-rejected">Ditolak</span>';
+            else $statusBadge = '<span class="status-badge status-pending">Menunggu</span>';
+            
+            $actionBtn = '';
+            if($row['status_pengajuan'] == 'Pending') {
+                $actionBtn = '<div class="action-btns"><button class="btn-action" onclick="showSetujuTarik('.$row['id'].', \'Rp '.number_format($row['nominal'],0,',','.').'\', \''.$row['nama_lengkap'].'\')" title="Proses"><i class="fas fa-check-circle"></i></button></div>';
+            }
+            
+            $response['data'][] = [
+                $result['offset'] + $i + 1,
+                date('d/m/Y', strtotime($row['created_at'])),
+                $row['nip'],
+                $row['nama_lengkap'],
+                'Rp ' . number_format($row['nominal'], 0, ',', '.'),
+                $statusBadge,
+                $actionBtn
+            ];
+        }
+        return $this->response->setJSON($response);
+    }
+
+    public function ajaxSetoran()
+    {
+        $model = new \App\Models\SetoranSimpananModel();
+        $result = $this->processDataTables($model, ['anggota.nama_lengkap', 'anggota.nip'], null, [
+            ['table' => 'anggota', 'cond' => 'anggota.id = setoran_simpanan.anggota_id']
+        ]);
+        
+        $response = [
+            'draw' => $result['draw'],
+            'recordsTotal' => $result['recordsTotal'],
+            'recordsFiltered' => $result['recordsFiltered'],
+            'data' => []
+        ];
+        
+        foreach ($result['data'] as $i => $row) {
+            $statusBadge = '';
+            if($row['status_pengajuan'] == 'Disetujui') $statusBadge = '<span class="status-badge status-approved">Disetujui</span>';
+            else if($row['status_pengajuan'] == 'Ditolak') $statusBadge = '<span class="status-badge status-rejected">Ditolak</span>';
+            else $statusBadge = '<span class="status-badge status-pending">Menunggu</span>';
+            
+            $actionBtn = '';
+            if($row['status_pengajuan'] == 'Pending') {
+                $actionBtn = '<div class="action-btns"><button class="btn-action" onclick="showSetujuSetor('.$row['id'].', \'Rp '.number_format($row['nominal'],0,',','.').'\', \''.$row['nama_lengkap'].'\')" title="Proses"><i class="fas fa-check-circle"></i></button></div>';
+            } else {
+                $actionBtn = '<div class="action-btns"><button class="btn-action edit" onclick="showBuktiSetor(\''.base_url('uploads/bukti_setor/'.$row['bukti_transfer']).'\')" title="Lihat Bukti"><i class="fas fa-image"></i></button></div>';
+            }
+            
+            $response['data'][] = [
+                $result['offset'] + $i + 1,
+                date('d/m/Y', strtotime($row['created_at'])),
+                $row['nip'],
+                $row['nama_lengkap'],
+                'Simpanan Sukarela',
+                'Rp ' . number_format($row['nominal'], 0, ',', '.'),
+                $statusBadge,
+                $actionBtn
+            ];
+        }
+        return $this->response->setJSON($response);
+    }
+
+    public function ajaxPinjaman()
+    {
+        $model = new \App\Models\PinjamanModel();
+        $result = $this->processDataTables($model, ['anggota.nama_lengkap', 'anggota.nip', 'pinjaman.tujuan'], null, [
+            ['table' => 'anggota', 'cond' => 'anggota.id = pinjaman.anggota_id']
+        ]);
+        
+        $response = [
+            'draw' => $result['draw'],
+            'recordsTotal' => $result['recordsTotal'],
+            'recordsFiltered' => $result['recordsFiltered'],
+            'data' => []
+        ];
+        
+        foreach ($result['data'] as $i => $row) {
+            $statusBadge = '';
+            if($row['status_pengajuan'] == 'Disetujui') $statusBadge = '<span class="status-badge status-approved">Aktif</span>';
+            else if($row['status_pengajuan'] == 'Ditolak') $statusBadge = '<span class="status-badge status-rejected">Ditolak</span>';
+            else if($row['status_pengajuan'] == 'Lunas') $statusBadge = '<span class="status-badge status-approved" style="background:#3b82f6;">Lunas</span>';
+            else $statusBadge = '<span class="status-badge status-pending">Menunggu</span>';
+            
+            $actionBtns = '<div class="action-btns">';
+            if($row['status_pengajuan'] == 'Pending') {
+                $actionBtns .= '
+                    <form action="/admin/verifikasi-pinjaman" method="POST" style="display:inline;">
+                        <input type="hidden" name="id" value="'.$row['id'].'">
+                        <button class="btn-action edit" type="submit" title="Verifikasi"><i class="fas fa-search"></i></button>
+                    </form>
+                    <form action="/admin/reject-pinjaman/'.$row['id'].'" method="POST" style="display:inline;">
+                        <button class="btn-action delete" type="submit" title="Tolak"><i class="fas fa-times"></i></button>
+                    </form>';
+            } else if($row['status_pengajuan'] == 'Verifikasi') {
+                $actionBtns .= '
+                    <form action="/admin/approve-pinjaman/'.$row['id'].'" method="POST" style="display:inline;">
+                        <button class="btn-action edit" type="submit" title="Setujui"><i class="fas fa-check"></i></button>
+                    </form>
+                    <form action="/admin/reject-pinjaman/'.$row['id'].'" method="POST" style="display:inline;">
+                        <button class="btn-action delete" type="submit" title="Tolak"><i class="fas fa-times"></i></button>
+                    </form>';
+            } else if($row['status_pengajuan'] == 'Disetujui') {
+                $actionBtns .= '
+                    <form action="/admin/cairkan-pinjaman/'.$row['id'].'" method="POST" style="display:inline;">
+                        <button class="btn-action btn-primary" type="submit" title="Cairkan Dana"><i class="fas fa-money-bill-wave"></i></button>
+                    </form>';
+            }
+            $actionBtns .= '<button class="btn-action btn-primary" onclick="lihatRincianCicilan('.$row['id'].')" title="Rincian Cicilan"><i class="fas fa-list"></i></button>';
+            $actionBtns .= '<a href="/admin/detail-pinjaman/'.$row['id'].'" class="btn-action" title="Detail"><i class="fas fa-eye"></i></a>';
+            $actionBtns .= '</div>';
+            
+            $response['data'][] = [
+                $result['offset'] + $i + 1,
+                date('d/m/Y', strtotime($row['created_at'])),
+                $row['nip'],
+                $row['nama_lengkap'],
+                'Rp ' . number_format($row['nominal_pengajuan'], 0, ',', '.'),
+                $row['tenor_bulan'] . ' bln',
+                $statusBadge,
+                $actionBtns
+            ];
+        }
+        return $this->response->setJSON($response);
+    }
+}
