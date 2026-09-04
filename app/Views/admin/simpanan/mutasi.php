@@ -11,7 +11,7 @@
 <div class="card glass-card mb-4">
     <div class="card-body">
         
-    <?= csrf_field() ?>" method="GET" class="row g-3 align-items-end">
+        <form action="<?= base_url('admin/simpanan/mutasi') ?>" method="GET" class="row g-3 align-items-end">
             <div class="col-md-3">
                 <label class="form-label">Tanggal Mulai</label>
                 <input type="date" name="tgl_awal" class="form-control" value="<?= $awal ?? '' ?>">
