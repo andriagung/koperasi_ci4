@@ -6,7 +6,7 @@
 </div>
 
 <div class="card glass-card" style="padding: 20px;">
-    
+    <form action="" method="GET" class="d-flex gap-2 align-items-center mb-4">
     <?= csrf_field() ?>
         <select name="anggota_id" class="form-control" style="max-width: 300px;" required>
             <option value="">-- Pilih Anggota --</option>
