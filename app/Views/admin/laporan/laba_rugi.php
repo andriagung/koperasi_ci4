@@ -11,7 +11,7 @@
 
 <div class="table-container" style="margin-bottom: 20px; padding: 15px;">
     
-    <form action="" method="POST">
+    <form action="" method="GET">
         <?= csrf_field() ?>
         <div>
             <label style="font-weight: bold; font-size: 0.85rem; margin-bottom: 5px; display: block;">Dari Tanggal</label>

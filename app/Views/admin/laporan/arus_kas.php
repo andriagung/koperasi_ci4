@@ -7,7 +7,7 @@
     
     <div style="background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px;">
         
-    <form action="" method="POST">
+    <form action="" method="GET">
         <?= csrf_field() ?>
             <div>
                 <label style="display: block; font-size: 14px; margin-bottom: 5px;">Tanggal Awal</label>
@@ -28,7 +28,7 @@
             <h3>Detail Arus Kas</h3>
             <div>
                 
-    <form action="" method="POST">
+    <form action="<?= base_url('admin/laporan/generate') ?>" method="POST">
         <?= csrf_field() ?>
                     <input type="hidden" name="jenis_laporan" value="aruskas">
                     <input type="hidden" name="tgl_awal" value="<?= $awal ?? '' ?>">
@@ -37,7 +37,7 @@
                     <button type="submit" class="btn-primary" style="background-color: #dc2626; margin-right: 5px;"><i class="fas fa-file-pdf"></i> Export PDF</button>
                 </form>
                 
-    <form action="" method="POST">
+    <form action="<?= base_url('admin/laporan/generate') ?>" method="POST">
         <?= csrf_field() ?>
                     <input type="hidden" name="jenis_laporan" value="aruskas">
                     <input type="hidden" name="tgl_awal" value="<?= $awal ?? '' ?>">

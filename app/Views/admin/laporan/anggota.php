@@ -12,7 +12,7 @@
 <div class="card glass-card mb-4 no-print">
     <div class="card-body">
         
-    <form action="" method="POST">
+    <form action="" method="GET">
         <?= csrf_field() ?>" method="GET" class="row g-3 align-items-end">
             <div class="col-md-3">
                 <label class="form-label">Tanggal Mulai (Bergabung)</label>

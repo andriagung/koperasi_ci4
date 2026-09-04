@@ -11,7 +11,7 @@
 
     <div style="background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px;">
         
-    <form action="" method="POST">
+    <form action="" method="GET">
         <?= csrf_field() ?>
             <div>
                 <label style="display: block; font-size: 14px; margin-bottom: 5px;">Tanggal Awal</label>

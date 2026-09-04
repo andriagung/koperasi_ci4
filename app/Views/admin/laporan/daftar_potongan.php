@@ -5,7 +5,7 @@
 <div class="card glass-card" style="padding: 20px;">
     <h3 style="margin-bottom: 20px; color: var(--primary);"><i class="fas fa-filter"></i> Filter Laporan Daftar Potongan</h3>
     
-    <form action="" method="POST">
+    <form action="" method="GET">
         <?= csrf_field() ?>" method="POST" target="_blank">
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
             <div class="form-group">

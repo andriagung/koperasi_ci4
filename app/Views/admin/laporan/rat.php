@@ -12,7 +12,7 @@
             </div>
             <div class="card-body">
                 
-    <form action="" method="POST">
+    <form action="" method="GET">
         <?= csrf_field() ?>
                     <div class="row align-items-end">
                         <div class="col-md-3">
