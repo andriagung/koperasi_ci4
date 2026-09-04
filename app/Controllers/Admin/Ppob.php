@@ -12,8 +12,15 @@ class Ppob extends BaseController
 
     public function kasir()
     {
+        $anggotaModel = new \App\Models\AnggotaModel();
+        
         $kategori = ['Pulsa', 'Paket Data', 'Token PLN', 'Tagihan PLN', 'PDAM', 'BPJS', 'Internet & TV'];
-        return view('admin/ppob/kasir', ['kategori' => $kategori]);
+        $data = [
+            'kategori' => $kategori,
+            'anggota' => $anggotaModel->findAll()
+        ];
+        
+        return view('admin/ppob/kasir', $data);
     }
 
     public function ajaxProduk()
