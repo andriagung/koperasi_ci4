@@ -56,7 +56,7 @@
         <i class="fas fa-times modal-close" onclick="tutupModal('modal-tambah-bank')"></i>
         <h3 style="margin-bottom: 20px; color: var(--primary);" id="modal-bank-title">Tambah Rekening Bank</h3>
         
-    <form action="" method="POST">
+    <form action="<?= base_url('admin/keuangan/simpan-bank') ?>" method="POST" id="form-bank">
         <?= csrf_field() ?>
             <input type="hidden" name="id" id="bank_id">
             <div class="form-group">

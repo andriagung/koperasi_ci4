@@ -54,7 +54,7 @@
         <i class="fas fa-times modal-close" onclick="tutupModal('modal-tambah-kas')"></i>
         <h3 style="margin-bottom: 20px; color: var(--primary);" id="modal-kas-title">Tambah Kas</h3>
         
-    <form action="" method="POST">
+    <form action="<?= base_url('admin/keuangan/simpan-kas') ?>" method="POST" id="form-kas">
         <?= csrf_field() ?>
             <input type="hidden" name="id" id="kas_id">
             <div class="form-group">

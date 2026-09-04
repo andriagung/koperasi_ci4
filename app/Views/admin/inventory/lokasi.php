@@ -55,7 +55,7 @@
         <i class="fas fa-times modal-close" onclick="tutupModal('modal-tambah-lokasi')"></i>
         <h3 style="margin-bottom: 20px; color: var(--primary);" id="modal-lokasi-title">Tambah Lokasi</h3>
         
-    <form action="" method="POST">
+    <form action="<?= base_url('admin/inventory/simpan-lokasi') ?>" method="POST">
         <?= csrf_field() ?>
             <input type="hidden" name="id" id="lokasi_id">
             <div class="form-group">

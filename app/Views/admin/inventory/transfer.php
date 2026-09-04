@@ -47,7 +47,7 @@
         <i class="fas fa-times modal-close" onclick="tutupModal('modal-transfer')"></i>
         <h3 style="margin-bottom: 20px; color: var(--primary);">Transfer Stok</h3>
         
-    <form action="" method="POST">
+    <form action="<?= base_url('admin/inventory/simpan-transfer') ?>" method="POST">
         <?= csrf_field() ?>
             <div style="display: flex; gap: 10px;">
                 <div class="form-group" style="flex: 1;">

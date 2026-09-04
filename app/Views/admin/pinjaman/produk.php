@@ -54,7 +54,7 @@
         <i class="fas fa-times modal-close" onclick="tutupModal('modal-tambah')"></i>
         <h3 id="modal-title" style="margin-bottom:20px; color:var(--primary);">Tambah Produk Pinjaman</h3>
         
-    <form action="" method="POST">
+    <form action="<?= base_url('admin/pinjaman/simpanProduk') ?>" method="POST">
         <?= csrf_field() ?>
             <input type="hidden" name="id" id="produk_id">
             
