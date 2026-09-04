@@ -12,7 +12,8 @@ class Ppob extends BaseController
 
     public function kasir()
     {
-        return view('admin/ppob/kasir');
+        $kategori = ['Pulsa', 'Paket Data', 'Token PLN', 'Tagihan PLN', 'PDAM', 'BPJS', 'Internet & TV'];
+        return view('admin/ppob/kasir', ['kategori' => $kategori]);
     }
 
     public function ajaxProduk()
