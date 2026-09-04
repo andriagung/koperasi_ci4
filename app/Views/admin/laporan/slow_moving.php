@@ -12,7 +12,8 @@
 <div class="card glass-card mb-4 no-print">
     <div class="card-body">
         
-    <?= csrf_field() ?>" method="GET" class="row g-3 align-items-end">
+    <form action="" method="POST">
+        <?= csrf_field() ?>" method="GET" class="row g-3 align-items-end">
             <div class="col-md-3">
                 <label class="form-label">Tampilkan barang mati dalam X hari terakhir</label>
                 <select name="hari" class="form-select">

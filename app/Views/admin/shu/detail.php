@@ -15,7 +15,8 @@
     <?php endif; ?>
 
     
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
         <select name="tahun" class="form-control" style="max-width: 200px;">
             <?php for($i=date('Y'); $i>=date('Y')-5; $i--): ?>
                 <option value="<?= $i ?? '' ?>" <?= $tahun == $i ? 'selected' : '' ?>>Tahun Buku <?= $i ?? '' ?></option>

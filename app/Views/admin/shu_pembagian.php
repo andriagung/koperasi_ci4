@@ -8,7 +8,8 @@
     </div>
     <div class="col-md-6 text-end">
         
-    <?= csrf_field() ?>" method="POST" class="d-inline">
+    <form action="" method="POST">
+        <?= csrf_field() ?>" method="POST" class="d-inline">
             <input type="hidden" name="tahun" value="<?= $tahunSekarang ?? '' ?>">
             <button type="submit" class="btn btn-primary" onclick="return confirm('Mulai proses kalkulasi draf SHU Tahun <?= $tahunSekarang ?? '' ?> berdasarkan snapshot data saat ini?');">
                 <i class="fas fa-calculator me-2"></i>Kalkulasi Draf SHU <?= $tahunSekarang ?? '' ?>

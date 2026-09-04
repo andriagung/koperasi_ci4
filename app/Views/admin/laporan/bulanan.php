@@ -7,7 +7,8 @@
     
     <div style="background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px;">
         
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
             <div>
                 <label style="display: block; font-size: 14px; margin-bottom: 5px;">Tanggal Awal</label>
                 <input type="date" name="tgl_awal" class="form-control" value="<?= $awal ?? '' ?>" required>
@@ -30,7 +31,8 @@
         <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
             <h3 style="margin: 0;">Ringkasan Data (<?= date('d/m/Y', strtotime($awal)) ?> - <?= date('d/m/Y', strtotime($akhir)) ?>)</h3>
             
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
                 <input type="hidden" name="jenis_laporan" value="bulanan">
                 <input type="hidden" name="tgl_awal" value="<?= $awal ?? '' ?>">
                 <input type="hidden" name="tgl_akhir" value="<?= $akhir ?? '' ?>">

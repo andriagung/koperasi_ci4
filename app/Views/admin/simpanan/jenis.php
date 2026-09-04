@@ -58,7 +58,8 @@
         <i class="fas fa-times modal-close" onclick="tutupModal('modal-tambah')"></i>
         <h3 id="modal-title" style="margin-bottom:20px; color:var(--primary);">Tambah Jenis Simpanan</h3>
         
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
             <input type="hidden" name="id" id="jenis_id">
             
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">

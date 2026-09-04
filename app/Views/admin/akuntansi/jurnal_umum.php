@@ -79,7 +79,8 @@
 <div class="modal fade" id="modalTambahJurnal" tabindex="-1">
     <div class="modal-dialog modal-xl">
         
-    <?= csrf_field() ?>" method="POST" id="formTambahJurnal">
+    <form action="" method="POST">
+        <?= csrf_field() ?>" method="POST" id="formTambahJurnal">
             <div class="modal-content glass-card">
                 <div class="modal-header">
                     <h5 class="modal-title">Tambah Jurnal Manual</h5>

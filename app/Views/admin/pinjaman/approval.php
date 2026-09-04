@@ -72,7 +72,8 @@
                 <i class="fas fa-gavel text-primary"></i> Keputusan Komite Kredit
             </h4>
             
-    <?= csrf_field() ?>" method="POST" id="form-approve">
+    <form action="" method="POST">
+        <?= csrf_field() ?>" method="POST" id="form-approve">
                 <input type="hidden" name="<?= csrf_token() ?>" value="<?= csrf_hash() ?>">
                 <div class="form-group">
                     <label style="font-size: 0.85rem; font-weight: 500; margin-bottom: 6px;">Catatan Persetujuan / Verifikasi</label>
@@ -86,7 +87,8 @@
             </form>
             
             
-    <?= csrf_field() ?>" method="POST" id="form-reject" style="display:none; margin-top:15px; background:#fee2e2; padding:18px; border-radius:12px; border: 1px solid #fca5a5;">
+    <form action="" method="POST">
+        <?= csrf_field() ?>" method="POST" id="form-reject" style="display:none; margin-top:15px; background:#fee2e2; padding:18px; border-radius:12px; border: 1px solid #fca5a5;">
                 <input type="hidden" name="<?= csrf_token() ?>" value="<?= csrf_hash() ?>">
                 <div class="form-group">
                     <label style="color:#991b1b; font-weight: 600; font-size: 0.85rem; margin-bottom: 6px;">Alasan Penolakan <span style="color:#dc2626;">*</span></label>

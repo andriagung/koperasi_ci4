@@ -34,7 +34,8 @@
         <span class="close" onclick="closeKasModal()" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
         <h2 style="margin-top: 0;">Input Transaksi Kas</h2>
         
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
             <div style="margin-bottom: 15px;">
                 <label style="display: block; margin-bottom: 5px;">Jenis Transaksi</label>
                 <select name="jenis" class="form-control" style="width: 100%; padding: 8px;" required>

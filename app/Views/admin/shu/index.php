@@ -15,7 +15,8 @@
     <?php endif; ?>
 
     
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
         <select name="tahun" class="form-control" style="max-width: 200px;">
             <?php for($i=date('Y'); $i>=date('Y')-5; $i--): ?>
                 <option value="<?= $i ?? '' ?>" <?= $tahun == $i ? 'selected' : '' ?>>Tahun Buku <?= $i ?? '' ?></option>
@@ -90,7 +91,8 @@
         <?php if(!$isDitutup): ?>
             <div style="margin-top: 30px; text-align: center;">
                 
-    <?= csrf_field() ?>" onsubmit="return confirm('APAKAH ANDA YAKIN? Proses Tutup Buku akan secara permanen membagikan nominal ini ke Simpanan Sukarela anggota dan menjurnal Laba Rugi ke SHU Tahun Berjalan. Tindakan ini tidak dapat dibatalkan.')">
+    <form action="" method="POST">
+        <?= csrf_field() ?>" onsubmit="return confirm('APAKAH ANDA YAKIN? Proses Tutup Buku akan secara permanen membagikan nominal ini ke Simpanan Sukarela anggota dan menjurnal Laba Rugi ke SHU Tahun Berjalan. Tindakan ini tidak dapat dibatalkan.')">
                     <input type="hidden" name="tahun" value="<?= $tahun ?? '' ?>">
                     <button type="submit" class="btn btn-danger" <?= !$simulasi['has_laba'] ? 'disabled' : '' ?> style="padding: 12px 30px; border-radius: 8px; font-weight: bold; font-size: 16px;">
                         <i class="fas fa-lock"></i> Eksekusi Tutup Buku <?= $tahun ?? '' ?>

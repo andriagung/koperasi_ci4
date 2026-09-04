@@ -4,7 +4,8 @@
             <i class="fas fa-times modal-close" onclick="tutupModal('modal-tambah-anggota')"></i>
             <h3 style="margin-bottom: 20px; color: var(--primary);">Registrasi Anggota Baru</h3>
             
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
                 <div class="form-group">
                     <label>Nomor Induk Pegawai (NIP)</label>
                     <input type="text" name="nip" placeholder="Masukkan NIP (15 Digit)" required>
@@ -39,7 +40,8 @@
             <i class="fas fa-times modal-close" onclick="tutupModal('modal-edit-anggota')"></i>
             <h3 style="margin-bottom: 20px; color: var(--primary);">Edit Master Anggota</h3>
             
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
                 <div class="form-group">
                     <label>Nomor Induk Pegawai (NIP)</label>
                     <input type="text" name="nip" id="edit_nip" required>
@@ -77,7 +79,8 @@
             <i class="fas fa-times modal-close" onclick="tutupModal('modal-tambah-promo')"></i>
             <h3 style="margin-bottom: 20px; color: var(--primary);">Tambah Produk/Promo Baru</h3>
             
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
                 <div class="form-group">
                     <label>Nama Produk / Paket</label>
                     <input type="text" name="nama_produk" required>
@@ -124,7 +127,8 @@
             <i class="fas fa-times modal-close" onclick="tutupModal('modal-edit-promo')"></i>
             <h3 style="margin-bottom: 20px; color: var(--primary);">Edit Produk/Promo</h3>
             
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
                 <div class="form-group">
                     <label>Nama Produk / Paket</label>
                     <input type="text" name="nama_produk" id="edit_promo_nama" required>
@@ -171,7 +175,8 @@
             <i class="fas fa-times modal-close" onclick="tutupModal('modal-tambah-supplier')"></i>
             <h3 style="margin-bottom: 20px; color: var(--primary);">Tambah Supplier Baru</h3>
             
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
                 <div class="form-group">
                     <label>Kode Supplier</label>
                     <input type="text" name="kode_supplier" placeholder="Contoh: SUP-01" required>
@@ -199,7 +204,8 @@
             <i class="fas fa-times modal-close" onclick="tutupModal('modal-tambah-po')"></i>
             <h3 style="margin-bottom: 20px; color: var(--primary);">Buat Purchase Order Baru</h3>
             
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
                 <div class="form-group">
                     <label>Pilih Supplier</label>
                     <select name="supplier_id" required>
@@ -240,7 +246,8 @@
             <i class="fas fa-times modal-close" onclick="tutupModal('modal-tambah-admin')"></i>
             <h3 style="margin-bottom: 20px; color: var(--primary);">Tambah Akses Admin</h3>
             
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
                 <div class="form-group">
                     <label>Nama Lengkap</label>
                     <input type="text" name="nama_lengkap" required>
@@ -272,7 +279,8 @@
             <i class="fas fa-times modal-close" onclick="tutupModal('modal-edit-admin')"></i>
             <h3 style="margin-bottom: 20px; color: var(--primary);">Edit Akses Admin</h3>
             
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
                 <div class="form-group">
                     <label>Nama Lengkap</label>
                     <input type="text" name="nama_lengkap" id="edit_admin_nama" required>

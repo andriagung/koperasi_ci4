@@ -11,7 +11,8 @@
 
 <div class="table-container" style="margin-bottom: 20px; padding: 15px;">
     
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
         <div>
             <label style="font-weight: bold; font-size: 0.85rem; margin-bottom: 5px; display: block;">Pilih Akun (COA)</label>
             <select name="coa_id" class="form-control" style="padding: 8px; border-radius: 5px; border: 1px solid #ccc; outline: none; min-width: 200px;" required>

@@ -7,7 +7,8 @@
     
     <div style="background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px;">
         
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
             <div>
                 <label style="display: block; font-size: 14px; margin-bottom: 5px;">Batas Jatuh Tempo (Hingga)</label>
                 <input type="date" name="tgl_akhir" class="form-control" value="<?= $akhir ?? '' ?>" required>

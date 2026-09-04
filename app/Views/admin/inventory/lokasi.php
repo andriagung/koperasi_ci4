@@ -55,7 +55,8 @@
         <i class="fas fa-times modal-close" onclick="tutupModal('modal-tambah-lokasi')"></i>
         <h3 style="margin-bottom: 20px; color: var(--primary);" id="modal-lokasi-title">Tambah Lokasi</h3>
         
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
             <input type="hidden" name="id" id="lokasi_id">
             <div class="form-group">
                 <label>Kode Lokasi</label>

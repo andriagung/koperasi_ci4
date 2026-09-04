@@ -197,7 +197,8 @@
                     <i class="fas fa-times modal-close" onclick="tutupModal('modal-koreksi-simpanan')"></i>
                     <h3 style="margin-bottom: 20px; color: var(--primary);"><i class="fas fa-edit"></i> Koreksi Saldo Simpanan</h3>
                     
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
                         <div class="form-group">
                             <label>Anggota ID</label>
                             <input type="number" name="anggota_id" placeholder="ID Anggota" required>
@@ -236,7 +237,8 @@
                     <i class="fas fa-times modal-close" onclick="tutupModal('modal-transfer-simpanan')"></i>
                     <h3 style="margin-bottom: 20px; color: var(--primary);"><i class="fas fa-exchange-alt"></i> Transfer Saldo Simpanan</h3>
                     
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
                         <div class="form-group">
                             <label>Anggota ID</label>
                             <input type="number" name="anggota_id" placeholder="ID Anggota" required>

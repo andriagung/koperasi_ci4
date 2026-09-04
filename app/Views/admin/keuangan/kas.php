@@ -54,7 +54,8 @@
         <i class="fas fa-times modal-close" onclick="tutupModal('modal-tambah-kas')"></i>
         <h3 style="margin-bottom: 20px; color: var(--primary);" id="modal-kas-title">Tambah Kas</h3>
         
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
             <input type="hidden" name="id" id="kas_id">
             <div class="form-group">
                 <label>Kode Kas</label>

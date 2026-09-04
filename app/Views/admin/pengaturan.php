@@ -10,7 +10,8 @@
                 <div class="row">
                     <div class="col-md-6">
                         
-    <?= csrf_field() ?>" method="POST">
+    <form action="" method="POST">
+        <?= csrf_field() ?>" method="POST">
                             <div class="mb-3">
                                 <label class="form-label">Limit Plafon Pinjaman Maksimal (Rp)</label>
                                 <input type="number" name="limit_pinjaman_max" class="form-control" value="<?= esc($pengaturan['limit_pinjaman_max'] ?? '15000000') ?>">

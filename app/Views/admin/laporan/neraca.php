@@ -11,7 +11,8 @@
 
 <div class="table-container" style="margin-bottom: 20px; padding: 15px;">
     
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
         <!-- Neraca is usually a snapshot at a given date. We keep tgl_awal just for UI consistency if needed, but only tgl_akhir is mathematically used for Neraca. -->
         <input type="hidden" name="tgl_awal" value="<?= esc($awal ?? '') ?>">
         <div>

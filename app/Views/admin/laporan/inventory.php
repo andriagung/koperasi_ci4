@@ -12,7 +12,8 @@
 <div class="card glass-card mb-4 no-print">
     <div class="card-body">
         
-    <?= csrf_field() ?>" method="GET" class="row g-3 align-items-end">
+    <form action="" method="POST">
+        <?= csrf_field() ?>" method="GET" class="row g-3 align-items-end">
             <div class="col-md-6">
                 <button type="submit" name="action" value="filter" class="btn btn-primary me-2"><i class="fas fa-sync me-1"></i>Refresh Data</button>
                 

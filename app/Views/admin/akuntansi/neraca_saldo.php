@@ -11,7 +11,8 @@
 <div class="card glass-card mb-4">
     <div class="card-body">
         
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
             <div class="row g-3">
                 <div class="col-md-4">
                     <label>Bulan</label>

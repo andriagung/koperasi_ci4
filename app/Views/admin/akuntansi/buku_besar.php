@@ -9,7 +9,8 @@
             </div>
             <div class="card-body">
     
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
         <select name="akun_id" class="form-control" style="max-width: 400px;" required>
             <option value="">-- Pilih Akun --</option>
             <?php foreach($list_akun as $a): ?>

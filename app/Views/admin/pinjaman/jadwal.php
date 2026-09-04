@@ -102,7 +102,8 @@
         <h3 style="margin-bottom:20px; color:var(--primary);">Pembayaran Angsuran Ke-<span id="lbl_angsuran_ke"></span></h3>
         
         
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
             <input type="hidden" name="jadwal_id" id="bayar_jadwal_id">
             
             <div style="background:#f1f5f9; padding:15px; border-radius:6px; margin-bottom:20px;">

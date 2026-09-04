@@ -12,7 +12,8 @@
 <div class="card glass-card mb-4 no-print">
     <div class="card-body">
         
-    <?= csrf_field() ?>" method="GET" class="row g-3 align-items-end">
+    <form action="" method="POST">
+        <?= csrf_field() ?>" method="GET" class="row g-3 align-items-end">
             <div class="col-md-3">
                 <label class="form-label">Tanggal Mulai (Bergabung)</label>
                 <input type="date" name="tgl_awal" class="form-control" value="<?= $awal ?? '' ?>">

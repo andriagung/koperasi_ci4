@@ -41,7 +41,8 @@
         </h3>
         
         
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
             <h5 style="border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 15px; color: #334155; font-size: 0.95rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
                 <i class="fas fa-info-circle text-primary"></i> Informasi Pinjaman
             </h5>

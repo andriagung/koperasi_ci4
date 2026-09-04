@@ -12,7 +12,8 @@
             </div>
             <div class="card-body">
                 
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
                     <div class="row align-items-end">
                         <div class="col-md-3">
                             <div class="form-group mb-0">

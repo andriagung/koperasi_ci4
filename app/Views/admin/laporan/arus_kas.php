@@ -7,7 +7,8 @@
     
     <div style="background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 20px;">
         
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
             <div>
                 <label style="display: block; font-size: 14px; margin-bottom: 5px;">Tanggal Awal</label>
                 <input type="date" name="tgl_awal" class="form-control" value="<?= $awal ?? '' ?>" required>
@@ -27,7 +28,8 @@
             <h3>Detail Arus Kas</h3>
             <div>
                 
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
                     <input type="hidden" name="jenis_laporan" value="aruskas">
                     <input type="hidden" name="tgl_awal" value="<?= $awal ?? '' ?>">
                     <input type="hidden" name="tgl_akhir" value="<?= $akhir ?? '' ?>">
@@ -35,7 +37,8 @@
                     <button type="submit" class="btn-primary" style="background-color: #dc2626; margin-right: 5px;"><i class="fas fa-file-pdf"></i> Export PDF</button>
                 </form>
                 
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
                     <input type="hidden" name="jenis_laporan" value="aruskas">
                     <input type="hidden" name="tgl_awal" value="<?= $awal ?? '' ?>">
                     <input type="hidden" name="tgl_akhir" value="<?= $akhir ?? '' ?>">

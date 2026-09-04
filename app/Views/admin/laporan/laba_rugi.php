@@ -11,7 +11,8 @@
 
 <div class="table-container" style="margin-bottom: 20px; padding: 15px;">
     
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
         <div>
             <label style="font-weight: bold; font-size: 0.85rem; margin-bottom: 5px; display: block;">Dari Tanggal</label>
             <input type="date" name="tgl_awal" class="form-control" value="<?= esc($awal ?? '') ?>" style="padding: 8px; border-radius: 5px; border: 1px solid #ccc; outline: none;" required>

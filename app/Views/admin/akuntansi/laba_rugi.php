@@ -9,7 +9,8 @@
             </div>
             <div class="card-body">
     
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
         <select name="bulan" class="form-control" style="max-width: 150px;">
             <?php for($i=1; $i<=12; $i++): $m = str_pad($i, 2, '0', STR_PAD_LEFT); ?>
                 <option value="<?= $m ?? '' ?>" <?= $bulan == $m ? 'selected' : '' ?>><?= date('F', mktime(0,0,0,$i,10)) ?></option>

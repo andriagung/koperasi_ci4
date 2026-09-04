@@ -19,7 +19,8 @@
         <div class="card glass-card">
             <div class="card-body">
                 
-    <?= csrf_field() ?>
+    <form action="" method="POST">
+        <?= csrf_field() ?>
                     <div class="mb-4">
                         <label class="form-label fw-bold">1. Pilih Kategori Layanan</label>
                         <div class="d-flex flex-wrap gap-2">
