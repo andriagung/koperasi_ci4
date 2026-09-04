@@ -200,8 +200,8 @@
 <!-- Modal Hapus -->
 <div class="modal fade" id="modal-hapus-ppob" tabindex="-1">
     <div class="modal-dialog modal-sm">
-        
-    <?= csrf_field() ?>
+        <form action="" method="POST" id="form-hapus-ppob">
+        <?= csrf_field() ?>
             <div class="modal-header">
                 <h5 class="modal-title">Hapus Produk</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
