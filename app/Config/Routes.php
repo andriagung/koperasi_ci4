@@ -94,6 +94,7 @@ $routes->group('admin', ['filter' => 'roleFilter:SuperAdmin,Admin,Gudang'], func
     $routes->post('waserda/retur-penjualan', 'Admin\Waserda::prosesReturPenjualan');
 
     // Inventory Phase 8 (Lokasi, Transfer, Opname, Kartu Stok)
+    $routes->get('inventory/barang', function() { return redirect()->to(base_url('admin/gudang')); });
     $routes->get('inventory/lokasi', 'Admin\Inventory::lokasi');
     $routes->post('inventory/simpan-lokasi', 'Admin\Inventory::simpanLokasi');
     $routes->get('inventory/kartu-stok', 'Admin\Inventory::kartuStok');
@@ -154,6 +155,7 @@ $routes->group('admin', ['filter' => 'roleFilter:SuperAdmin,Admin,Pengurus,Manaj
 $routes->group('admin', ['filter' => 'roleFilter:SuperAdmin,Admin'], function($routes) {
     
     // Simpanan
+    $routes->get('simpanan', function() { return redirect()->to(base_url('admin/simpanan/transaksi')); });
     $routes->get('simpanan/jenis', 'Admin\Simpanan::jenis');
     $routes->post('simpanan/simpanJenis', 'Admin\Simpanan::simpanJenis');
     $routes->post('simpanan/hapusJenis/(:hash)', 'Admin\Simpanan::hapusJenis/$1');
