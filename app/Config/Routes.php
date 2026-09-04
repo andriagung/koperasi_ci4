@@ -142,6 +142,7 @@ $routes->group('admin', ['filter' => 'roleFilter:SuperAdmin,Admin,Pengurus,Manaj
     $routes->post('hapus-dokumen/(:hash)', 'Admin\Anggota::hapusDokumen/$1');
     $routes->get('dokumen-anggota/(:hash)', 'Admin\Anggota::getDokumen/$1');
     $routes->get('anggota/kartu', 'Admin\Anggota::kartu');
+    $routes->get('anggota/kartu/(:hash)', 'Admin\Anggota::kartu/$1');
     
     // Bendahara Gaji
     $routes->get('bendahara', 'Admin\Bendahara::index');

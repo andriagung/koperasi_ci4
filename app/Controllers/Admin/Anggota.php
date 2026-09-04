@@ -34,14 +34,14 @@ class Anggota extends BaseController
 
     }
 
-    public function kartu()
+    public function kartu($hash = null)
     {
         $data = [
             'list_anggota' => $this->anggotaModel->findAll(),
             'anggota' => null
         ];
         
-        $id = $this->request->getGet('id');
+        $id = $hash ? idhash_decode($hash) : $this->request->getGet('id');
         if ($id) {
             $data['anggota'] = $this->anggotaModel->find($id);
         }
