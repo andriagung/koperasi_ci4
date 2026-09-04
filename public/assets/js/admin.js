@@ -383,6 +383,11 @@ $(document).ready(function() {
                 tr.addClass('shown');
             }
         });
+        
+        // Inisialisasi Generik untuk semua tabel dengan class .datatable yang belum terinisialisasi
+        if ($('.datatable').length) {
+            $('.datatable').not('.dataTable').DataTable(window.dataTableOptions);
+        }
     }
 });
 
