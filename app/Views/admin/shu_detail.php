@@ -10,7 +10,7 @@
     <div class="col-md-6 text-end">
         <?php if ($periode['status'] == 'Dihitung'): ?>
             
-    <form action="" method="POST">
+    <form action="" method="GET">
         <?= csrf_field() ?>" method="POST" class="d-inline">
                 <button type="submit" class="btn btn-info text-white" onclick="return confirm('Apakah Anda yakin menyetujui draf SHU ini? Setelah disetujui, SHU siap dibagikan.');">
                     <i class="fas fa-check-circle me-2"></i>Setujui Draf SHU
@@ -107,7 +107,7 @@
 <div class="modal fade" id="modalBagikan" tabindex="-1">
     <div class="modal-dialog modal-lg">
         
-    <form action="" method="POST">
+    <form action="" method="GET">
         <?= csrf_field() ?>" method="POST">
             <div class="modal-content glass-card">
                 <div class="modal-header">

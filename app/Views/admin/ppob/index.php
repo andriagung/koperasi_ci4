@@ -83,7 +83,7 @@
 <div class="modal fade" id="modal-tambah-ppob" tabindex="-1">
     <div class="modal-dialog modal-lg">
         
-    <form action="" method="POST">
+    <form action="" method="GET">
         <?= csrf_field() ?>
             <div class="modal-header">
                 <h5 class="modal-title">Tambah Produk PPOB</h5>
@@ -143,7 +143,7 @@
 <div class="modal fade" id="modal-edit-ppob" tabindex="-1">
     <div class="modal-dialog modal-lg">
         
-    <form action="" method="POST">
+    <form action="" method="GET">
         <?= csrf_field() ?>
             <div class="modal-header">
                 <h5 class="modal-title">Edit Produk PPOB</h5>

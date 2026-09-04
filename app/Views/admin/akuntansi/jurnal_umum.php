@@ -79,7 +79,7 @@
 <div class="modal fade" id="modalTambahJurnal" tabindex="-1">
     <div class="modal-dialog modal-xl">
         
-    <form action="" method="POST">
+    <form action="<?= base_url('admin/akuntansi/simpan-jurnal') ?>" method="POST">
         <?= csrf_field() ?>" method="POST" id="formTambahJurnal">
             <div class="modal-content glass-card">
                 <div class="modal-header">

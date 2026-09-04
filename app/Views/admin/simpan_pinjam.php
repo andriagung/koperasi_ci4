@@ -197,7 +197,7 @@
                     <i class="fas fa-times modal-close" onclick="tutupModal('modal-koreksi-simpanan')"></i>
                     <h3 style="margin-bottom: 20px; color: var(--primary);"><i class="fas fa-edit"></i> Koreksi Saldo Simpanan</h3>
                     
-    <form action="" method="POST">
+    <form action="" method="GET">
         <?= csrf_field() ?>
                         <div class="form-group">
                             <label>Anggota ID</label>
@@ -237,7 +237,7 @@
                     <i class="fas fa-times modal-close" onclick="tutupModal('modal-transfer-simpanan')"></i>
                     <h3 style="margin-bottom: 20px; color: var(--primary);"><i class="fas fa-exchange-alt"></i> Transfer Saldo Simpanan</h3>
                     
-    <form action="" method="POST">
+    <form action="" method="GET">
         <?= csrf_field() ?>
                         <div class="form-group">
                             <label>Anggota ID</label>

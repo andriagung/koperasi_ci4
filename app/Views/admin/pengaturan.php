@@ -10,7 +10,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         
-    <form action="" method="POST">
+    <form action="<?= base_url('admin/simpan-pengaturan') ?>" method="POST">
         <?= csrf_field() ?>" method="POST">
                             <div class="mb-3">
                                 <label class="form-label">Limit Plafon Pinjaman Maksimal (Rp)</label>

@@ -60,7 +60,7 @@
                         <p style="color:#64748b; font-size:0.85rem; margin-bottom:20px; line-height: 1.5;">Proses ini akan mengonversi sisa pokok pinjaman saat ini menjadi pinjaman baru dengan tenor dan bunga yang disesuaikan. Pinjaman sebelumnya akan ditutup dengan status <strong>"RESTRUCTURED"</strong>.</p>
                         
                         
-    <form action="" method="POST">
+    <form action="<?= base_url('admin/pinjaman/prosesRestrukturisasi') ?>" method="POST">
         <?= csrf_field() ?>
                             <input type="hidden" name="<?= csrf_token() ?>" value="<?= csrf_hash() ?>">
                             <input type="hidden" name="pinjaman_id" value="<?= idhash_encode($p['id']) ?>">

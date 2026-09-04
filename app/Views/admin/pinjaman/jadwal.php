@@ -102,7 +102,7 @@
         <h3 style="margin-bottom:20px; color:var(--primary);">Pembayaran Angsuran Ke-<span id="lbl_angsuran_ke"></span></h3>
         
         
-    <form action="" method="POST">
+    <form action="<?= base_url('admin/pinjaman/bayar-angsuran') ?>" method="POST">
         <?= csrf_field() ?>
             <input type="hidden" name="jadwal_id" id="bayar_jadwal_id">
             

@@ -11,7 +11,7 @@
 <div class="card glass-card mb-4">
     <div class="card-body">
         
-    <form action="" method="POST">
+    <form action="" method="GET">
         <?= csrf_field() ?>
             <div class="row g-3">
                 <div class="col-md-4">

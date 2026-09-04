@@ -9,7 +9,7 @@
             </div>
             <div class="card-body">
     
-    <form action="" method="POST">
+    <form action="" method="GET">
         <?= csrf_field() ?>
         <select name="bulan" class="form-control" style="max-width: 150px;">
             <?php for($i=1; $i<=12; $i++): $m = str_pad($i, 2, '0', STR_PAD_LEFT); ?>

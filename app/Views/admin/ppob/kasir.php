@@ -19,7 +19,7 @@
         <div class="card glass-card">
             <div class="card-body">
                 
-    <form action="" method="POST">
+    <form action="<?= base_url('admin/ppob/checkout') ?>" method="POST">
         <?= csrf_field() ?>
                     <div class="mb-4">
                         <label class="form-label fw-bold">1. Pilih Kategori Layanan</label>

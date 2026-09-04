@@ -4,7 +4,7 @@
             <i class="fas fa-times modal-close" onclick="tutupModal('modal-tambah-anggota')"></i>
             <h3 style="margin-bottom: 20px; color: var(--primary);">Registrasi Anggota Baru</h3>
             
-    <form action="" method="POST">
+    <form action="<?= base_url(\'admin/anggota/simpan\') ?>" method="POST">
         <?= csrf_field() ?>
                 <div class="form-group">
                     <label>Nomor Induk Pegawai (NIP)</label>
@@ -40,7 +40,7 @@
             <i class="fas fa-times modal-close" onclick="tutupModal('modal-edit-anggota')"></i>
             <h3 style="margin-bottom: 20px; color: var(--primary);">Edit Master Anggota</h3>
             
-    <form action="" method="POST">
+    <form action="" method="POST" id="form-edit-anggota">
         <?= csrf_field() ?>
                 <div class="form-group">
                     <label>Nomor Induk Pegawai (NIP)</label>
@@ -79,7 +79,7 @@
             <i class="fas fa-times modal-close" onclick="tutupModal('modal-tambah-promo')"></i>
             <h3 style="margin-bottom: 20px; color: var(--primary);">Tambah Produk/Promo Baru</h3>
             
-    <form action="" method="POST">
+    <form action="<?= base_url(\'admin/waserda/simpan-produk\') ?>" method="POST">
         <?= csrf_field() ?>
                 <div class="form-group">
                     <label>Nama Produk / Paket</label>
@@ -127,7 +127,7 @@
             <i class="fas fa-times modal-close" onclick="tutupModal('modal-edit-promo')"></i>
             <h3 style="margin-bottom: 20px; color: var(--primary);">Edit Produk/Promo</h3>
             
-    <form action="" method="POST">
+    <form action="" method="POST" id="form-edit-produk">
         <?= csrf_field() ?>
                 <div class="form-group">
                     <label>Nama Produk / Paket</label>
@@ -175,7 +175,7 @@
             <i class="fas fa-times modal-close" onclick="tutupModal('modal-tambah-supplier')"></i>
             <h3 style="margin-bottom: 20px; color: var(--primary);">Tambah Supplier Baru</h3>
             
-    <form action="" method="POST">
+    <form action="<?= base_url(\'admin/tambah-supplier\') ?>" method="POST">
         <?= csrf_field() ?>
                 <div class="form-group">
                     <label>Kode Supplier</label>
@@ -204,7 +204,7 @@
             <i class="fas fa-times modal-close" onclick="tutupModal('modal-tambah-po')"></i>
             <h3 style="margin-bottom: 20px; color: var(--primary);">Buat Purchase Order Baru</h3>
             
-    <form action="" method="POST">
+    <form action="<?= base_url(\'admin/tambah-po\') ?>" method="POST">
         <?= csrf_field() ?>
                 <div class="form-group">
                     <label>Pilih Supplier</label>
@@ -246,7 +246,7 @@
             <i class="fas fa-times modal-close" onclick="tutupModal('modal-tambah-admin')"></i>
             <h3 style="margin-bottom: 20px; color: var(--primary);">Tambah Akses Admin</h3>
             
-    <form action="" method="POST">
+    <form action="<?= base_url(\'admin/tambah-admin\') ?>" method="POST">
         <?= csrf_field() ?>
                 <div class="form-group">
                     <label>Nama Lengkap</label>
@@ -279,7 +279,7 @@
             <i class="fas fa-times modal-close" onclick="tutupModal('modal-edit-admin')"></i>
             <h3 style="margin-bottom: 20px; color: var(--primary);">Edit Akses Admin</h3>
             
-    <form action="" method="POST">
+    <form action="" method="POST" id="form-edit-admin">
         <?= csrf_field() ?>
                 <div class="form-group">
                     <label>Nama Lengkap</label>

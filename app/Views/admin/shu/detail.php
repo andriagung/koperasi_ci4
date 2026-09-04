@@ -15,7 +15,7 @@
     <?php endif; ?>
 
     
-    <form action="" method="POST">
+    <form action="<?= base_url('admin/shu/bagikan') ?>" method="POST">
         <?= csrf_field() ?>
         <select name="tahun" class="form-control" style="max-width: 200px;">
             <?php for($i=date('Y'); $i>=date('Y')-5; $i--): ?>

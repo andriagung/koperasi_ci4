@@ -20,7 +20,7 @@
     </div>
     
     
-    <form action="" method="POST">
+    <form action="<?= base_url('admin/pinjaman/proses-pencairan') ?>" method="POST">
         <?= csrf_field() ?>
         <input type="hidden" name="<?= csrf_token() ?>" value="<?= csrf_hash() ?>">
         <input type="hidden" name="pinjaman_id" value="<?= $pinjaman['id'] ?? '' ?>">

@@ -34,7 +34,7 @@
         <span class="close" onclick="closeKasModal()" style="color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
         <h2 style="margin-top: 0;">Input Transaksi Kas</h2>
         
-    <form action="" method="POST">
+    <form action="" method="GET">
         <?= csrf_field() ?>
             <div style="margin-bottom: 15px;">
                 <label style="display: block; margin-bottom: 5px;">Jenis Transaksi</label>

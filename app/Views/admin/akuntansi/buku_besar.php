@@ -9,7 +9,7 @@
             </div>
             <div class="card-body">
     
-    <form action="" method="POST">
+    <form action="" method="GET">
         <?= csrf_field() ?>
         <select name="akun_id" class="form-control" style="max-width: 400px;" required>
             <option value="">-- Pilih Akun --</option>

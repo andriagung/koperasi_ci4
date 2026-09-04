@@ -8,7 +8,7 @@
     </div>
     <div class="col-md-6 text-end">
         
-    <form action="" method="POST">
+    <form action="" method="GET">
         <?= csrf_field() ?>" method="POST" class="d-inline">
             <input type="hidden" name="tahun" value="<?= $tahunSekarang ?? '' ?>">
             <button type="submit" class="btn btn-primary" onclick="return confirm('Mulai proses kalkulasi draf SHU Tahun <?= $tahunSekarang ?? '' ?> berdasarkan snapshot data saat ini?');">
