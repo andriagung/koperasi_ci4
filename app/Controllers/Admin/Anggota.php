@@ -321,13 +321,13 @@ class Anggota extends BaseController
             ';
             
             $response['data'][] = [
-                $result['offset'] + $i + 1,
-                $row['nip'],
-                $row['nama_lengkap'],
-                $row['divisi'],
-                $row['no_hp'],
-                $statusBadge,
-                $actionBtns
+                'no' => $result['offset'] + $i + 1,
+                'nip' => $row['nip'],
+                'nama_lengkap' => $row['nama_lengkap'],
+                'divisi' => $row['divisi'],
+                'no_hp' => $row['no_hp'],
+                'status_badge' => $statusBadge,
+                'aksi' => $actionBtns
             ];
         }
         
