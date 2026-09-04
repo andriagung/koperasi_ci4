@@ -33,6 +33,21 @@ class Anggota extends BaseController
         return view('admin/anggota', $data);
 
     }
+
+    public function kartu()
+    {
+        $data = [
+            'list_anggota' => $this->anggotaModel->findAll(),
+            'anggota' => null
+        ];
+        
+        $id = $this->request->getGet('id');
+        if ($id) {
+            $data['anggota'] = $this->anggotaModel->find($id);
+        }
+        
+        return view('admin/anggota/kartu', $data);
+    }
     protected $anggotaModel;
     protected $simpananModel;
     protected $pinjamanModel;

@@ -14,4 +14,24 @@ class Ppob extends BaseController
     {
         return view('admin/ppob/kasir');
     }
+
+    public function ajaxProduk()
+    {
+        return $this->response->setJSON([
+            'draw' => intval($this->request->getPost('draw')),
+            'recordsTotal' => 0,
+            'recordsFiltered' => 0,
+            'data' => []
+        ]);
+    }
+
+    public function ajaxTransaksi()
+    {
+        return $this->response->setJSON([
+            'draw' => intval($this->request->getPost('draw')),
+            'recordsTotal' => 0,
+            'recordsFiltered' => 0,
+            'data' => []
+        ]);
+    }
 }

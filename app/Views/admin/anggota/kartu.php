@@ -7,6 +7,7 @@
 
 <div class="panel-view active" style="padding: 20px;">
     
+    <form action="" method="GET">
     <?= csrf_field() ?>
         <select name="id" class="form-control" style="max-width: 300px;" required>
             <option value="">-- Pilih Anggota --</option>
