@@ -108,7 +108,7 @@ class Simpanan extends BaseController {
         $transaksiModel = new \App\Models\SimpananTransaksiModel();
         
         $anggota_id_raw = $this->request->getGet('anggota_id');
-        $anggota_id = decrypt_id($anggota_id_raw);
+        $anggota_id = idhash_decode($anggota_id_raw);
         if ($anggota_id === null && is_numeric($anggota_id_raw)) {
             $anggota_id = (int)$anggota_id_raw;
         }
@@ -139,7 +139,7 @@ class Simpanan extends BaseController {
         $transaksiModel = new \App\Models\SimpananTransaksiModel();
         
         $anggota_id_raw = $this->request->getGet('anggota_id');
-        $anggota_id = decrypt_id($anggota_id_raw);
+        $anggota_id = idhash_decode($anggota_id_raw);
         if ($anggota_id === null && is_numeric($anggota_id_raw)) {
             $anggota_id = (int)$anggota_id_raw;
         }
